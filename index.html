@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Veste Coburg – Interaktives 3D-Modell & Dashboard</title>
+  <meta name="description" content="Interaktives 3D-Gelände- und Druckmodell der Veste Coburg auf Basis bayerischer Open-Data-Geodaten. Mit Three.js 3D-Viewer und Dashboard.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏰</text></svg>">
+
+  <!-- Google Fonts & Font Awesome 6 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Import Map for Three.js & Addons -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+
+  <!-- Background Canvas Container -->
+  <div id="canvas-container"></div>
+
+  <!-- Loading Screen Overlay -->
+  <div id="loader-overlay" class="loader-overlay">
+    <div class="loader-card glass-panel">
+      <div class="loader-icon">
+        <i class="fa-solid fa-cube fa-spin-pulse"></i>
+      </div>
+      <h2>Veste Coburg 3D</h2>
+      <p id="loader-status">Initialisiere 3D-Engine...</p>
+      <div class="loader-bar-bg">
+        <div id="loader-progress-bar" class="loader-bar-fill"></div>
+      </div>
+      <span class="loader-subtext">Geodatenbasis: Freistaat Bayern (DGM & LoD2)</span>
+    </div>
+  </div>
+
+  <!-- App Wrapper UI -->
+  <div class="app-layout">
+
+    <!-- Top Navigation Header -->
+    <header class="app-header glass-panel">
+      <div class="header-brand">
+        <div class="brand-badge"><i class="fa-solid fa-castle"></i></div>
+        <div class="brand-text">
+          <h1>Veste Coburg <span>3D-Explorer</span></h1>
+          <p class="subtitle">„Fränkische Krone“ • Interaktives Gelände- & Druckmodell</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="pill-badge">
+          <span class="dot-pulse"></span>
+          <span id="model-indicator-text">Modell: 3D-Druck (37.781 Polygone)</span>
+        </div>
+        <button id="btn-theme-toggle" class="header-icon-btn" title="Darstellungsmodus wechseln">
+          <i class="fa-solid fa-palette"></i>
+        </button>
+        <button id="btn-open-legal" class="btn btn-secondary btn-sm">
+          <i class="fa-solid fa-scale-balanced"></i> Impressum & Daten
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace with Floating Panels -->
+    <main class="workspace-area">
+
+      <!-- Left Floating Sidebar: Control & Camera Panel -->
+      <aside class="control-panel glass-panel">
+        <div class="panel-section">
+          <h3 class="panel-title"><i class="fa-solid fa-sliders"></i> Modell-Auswahl</h3>
+          <div class="model-select-group">
+            <button id="btn-model-druck" class="choice-btn active" data-file="Druckmodell.stl">
+              <i class="fa-solid fa-cube"></i>
+              <div class="btn-text">
+                <strong>Druckmodell (Solid)</strong>
+                <small>Volles Relief mit Drucksockel</small>
+              </div>
+            </button>
+            <button id="btn-model-gesamt" class="choice-btn" data-file="GesamtVeste.stl">
+              <i class="fa-solid fa-mountain"></i>
+              <div class="btn-text">
+                <strong>Gesamt-Ensemble</strong>
+                <small>Oberflächennetz der Veste</small>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h3 class="panel-title"><i class="fa-solid fa-brush"></i> Shader & Farbgebung</h3>
+          <div class="shading-chips" id="shading-buttons">
+            <button class="chip-btn active" data-shader="sandstone">
+              <span class="color-dot sandstone"></span> Sandstein
+            </button>
+            <button class="chip-btn" data-shader="elevation">
+              <span class="color-dot elevation"></span> Topografie
+            </button>
+            <button class="chip-btn" data-shader="clay">
+              <span class="color-dot clay"></span> Skulptur
+            </button>
+            <button class="chip-btn" data-shader="bronze">
+              <span class="color-dot bronze"></span> Bronze
+            </button>
+          </div>
+
+          <div class="toggle-row">
+            <label class="toggle-control">
+              <input type="checkbox" id="toggle-wireframe">
+              <span class="toggle-track"></span>
+              <span class="toggle-label"><i class="fa-solid fa-draw-polygon"></i> Drahtgitter (Wireframe)</span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <label class="toggle-control">
+              <input type="checkbox" id="toggle-autorotate" checked>
+              <span class="toggle-track"></span>
+              <span class="toggle-label"><i class="fa-solid fa-rotate"></i> Sanfte Rotation</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h3 class="panel-title"><i class="fa-solid fa-video"></i> Kameraperspektiven</h3>
+          <div class="camera-grid">
+            <button class="cam-btn" data-cam="iso" title="Isometrische Standardansicht">
+              <i class="fa-solid fa-cube"></i> Iso
+            </button>
+            <button class="cam-btn" data-cam="top" title="Draufsicht (Vogelperspektive)">
+              <i class="fa-solid fa-compass"></i> Draufsicht
+            </button>
+            <button class="cam-btn" data-cam="south" title="Südportal & Burgtor">
+              <i class="fa-solid fa-eye"></i> Süd-Front
+            </button>
+            <button class="cam-btn" data-cam="detail" title="Detailansicht Kernburg">
+              <i class="fa-solid fa-magnifying-glass-plus"></i> Kernburg
+            </button>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h3 class="panel-title"><i class="fa-solid fa-download"></i> 3D-Druckdateien</h3>
+          <div class="download-stack">
+            <a href="Druckmodell.stl" download class="dl-link" title="Download STL für 3D-Drucker">
+              <i class="fa-solid fa-file-arrow-down"></i>
+              <span>Druckmodell.stl <small>(1,8 MB)</small></span>
+            </a>
+            <a href="Druckmodell.3mf" download class="dl-link" title="Download 3MF Projekt">
+              <i class="fa-solid fa-file-arrow-down"></i>
+              <span>Druckmodell.3mf <small>(1,2 MB)</small></span>
+            </a>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Right Floating Dashboard: Model Metrics & Info -->
+      <aside class="dashboard-panel glass-panel">
+        <h3 class="panel-title"><i class="fa-solid fa-chart-simple"></i> Modell-Kennzahlen</h3>
+
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <span class="metric-label"><i class="fa-solid fa-arrows-left-right"></i> Modell-Ausschnitt</span>
+            <span class="metric-value">500 × 500 <small>m</small></span>
+            <span class="metric-detail">25 Hektar Gesamtgelände</span>
+          </div>
+
+          <div class="metric-card">
+            <span class="metric-label"><i class="fa-solid fa-mountain"></i> Höhenbereich</span>
+            <span class="metric-value">345 – 485 <small>m</small></span>
+            <span class="metric-detail">Höhendifferenz: 140 m</span>
+          </div>
+
+          <div class="metric-card">
+            <span class="metric-label"><i class="fa-solid fa-draw-polygon"></i> Dreiecksanzahl</span>
+            <span class="metric-value" id="val-triangles">37.781</span>
+            <span class="metric-detail">Optimiertes Triangulationsnetz</span>
+          </div>
+
+          <div class="metric-card">
+            <span class="metric-label"><i class="fa-solid fa-location-dot"></i> Koordinatensystem</span>
+            <span class="metric-value">ETRS89</span>
+            <span class="metric-detail">UTM Zone 32N (EPSG:25832)</span>
+          </div>
+        </div>
+
+        <!-- Geographic Information / Highlights -->
+        <div class="info-box">
+          <h4><i class="fa-solid fa-circle-info"></i> Geodaten-Hintergrund</h4>
+          <p>
+            Das Modell wurde durch Verschneidung des <strong>Digitalen Geländemodells (DGM1)</strong> mit den amtlichen <strong>LoD2-3D-Gebäuden</strong> (CityGML) der Bayerischen Vermessungsverwaltung im Geoinformationssystem (ArcGIS Pro / ArcPy) erzeugt und für den 3D-Druck als geschlossenes Solid (Manifold Mesh) aufbereitet.
+          </p>
+        </div>
+
+        <!-- Mouse Navigation Hint Bar -->
+        <div class="nav-hint-bar">
+          <div class="hint-item"><i class="fa-solid fa-computer-mouse"></i> <span><strong>Drehen:</strong> Linksklick & Ziehen</span></div>
+          <div class="hint-item"><i class="fa-solid fa-arrows-up-down-left-right"></i> <span><strong>Verschieben:</strong> Rechtsklick</span></div>
+          <div class="hint-item"><i class="fa-solid fa-magnifying-glass"></i> <span><strong>Zoomen:</strong> Mausrad</span></div>
+        </div>
+      </aside>
+
+    </main>
+
+    <!-- Bottom Footer Bar -->
+    <footer class="app-footer glass-panel">
+      <div class="footer-left">
+        <span>© 2026 Ralf Oppel • Geodatenanwendung (3D-GIS)</span>
+        <span class="sep">•</span>
+        <span>Hochschule für angewandte Wissenschaften Würzburg-Schweinfurt (THWS)</span>
+      </div>
+      <div class="footer-right">
+        <span>Geodatenquelle: <strong>Bayerische Vermessungsverwaltung</strong> (Open Data Bayern)</span>
+        <span class="sep">•</span>
+        <a href="#impressum" id="link-legal-modal">Impressum & Lizenzhinweise</a>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Legal & Open Data Modal (Impressum gem. § 5 DDG & Lizenzangaben) -->
+  <div id="legal-modal" class="modal-overlay">
+    <div class="modal-card glass-panel">
+      <div class="modal-header">
+        <h2><i class="fa-solid fa-scale-balanced"></i> Impressum & Rechtliche Angaben</h2>
+        <button id="btn-close-modal" class="close-modal-btn" aria-label="Schließen">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-content">
+        <section class="legal-section">
+          <h3>1. Angaben gemäß § 5 Digitale-Dienste-Gesetz (DDG)</h3>
+          <p><strong>Verantwortlicher Betreiber dieser Website:</strong></p>
+          <p>
+            Ralf Oppel<br>
+            Studiengang Geodatenmanagement / Vermessung<br>
+            Hochschule für angewandte Wissenschaften Würzburg-Schweinfurt (THWS)<br>
+            E-Mail: <a href="mailto:ralf.oppel@study.thws.de">ralf.oppel@study.thws.de</a>
+          </p>
+          <p>
+            <em>Hinweis:</em> Dieses interaktive 3D-Webportal dient ausschließlich nicht-kommerziellen Lehr-, Studien- und Forschungszwecken im Rahmen des Hochschulstudiums.
+          </p>
+        </section>
+
+        <section class="legal-section">
+          <h3>2. Geodatenbasis & Urheberrechtsnachweis (Open Data Bayern)</h3>
+          <p>
+            Die diesem 3D-Modell zugrundeliegenden Rohdaten (Digitales Geländemodell DGM, 3D-Gebäudemodelle LoD2 CityGML) stammen von der:
+          </p>
+          <blockquote>
+            <strong>Bayerische Vermessungsverwaltung</strong><br>
+            Landesamt für Digitalisierung, Breitband und Vermessung Bayern (LDBV)<br>
+            Webportal: <a href="https://geodatenonline.bayern.de/" target="_blank" rel="noopener">https://geodatenonline.bayern.de/</a>
+          </blockquote>
+          <p>
+            <strong>Nutzungsbedingungen der Geodaten:</strong><br>
+            Die Datenbereitstellung erfolgt unter der <strong>Datenlizenz Deutschland – Namensnennung – Version 2.0</strong> (<a href="https://www.govdata.de/dl-de/by-2-0" target="_blank" rel="noopener">dl-de/by-2-0</a>).
+          </p>
+          <p>
+            <em>Quellenvermerk:</em> „Datenquelle: Bayerische Vermessungsverwaltung – www.geodaten.bayern.de“
+          </p>
+        </section>
+
+        <section class="legal-section">
+          <h3>3. Software-Lizenzen</h3>
+          <p>
+            Die Webanwendung verwendet Open-Source-Bibliotheken:
+          </p>
+          <ul>
+            <li><strong>Three.js</strong> – 3D WebGL Library (MIT License, Copyright © 2010-2026 three.js authors)</li>
+            <li><strong>Font Awesome Free</strong> – Icons (CC BY 4.0 / SIL OFL 1.1 / MIT License)</li>
+            <li><strong>Google Fonts (Plus Jakarta Sans, JetBrains Mono)</strong> – (SIL Open Font License)</li>
+          </ul>
+        </section>
+
+        <section class="legal-section">
+          <h3>4. Haftungsausschluss (Disclaimer)</h3>
+          <p>
+            Die 3D-Visualisierungen und Berechnungen wurden nach bestem Wissen im Rahmen eines Studienprojektes erstellt. Für die Richtigkeit, Vollständigkeit oder Verwendbarkeit für bauliche, statische oder navigationsrelevante Zwecke wird keine Gewähr übernommen.
+          </p>
+        </section>
+      </div>
+
+      <div class="modal-footer">
+        <button id="btn-modal-ack" class="btn btn-primary">Verstanden & Schließen</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
