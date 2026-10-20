@@ -7,11 +7,11 @@
 
 Ein leichtes, responsives Web-Dashboard zur interaktiven 3D-Erkundung der **Veste Coburg** („Fränkische Krone“). Entwickelt im Rahmen des Moduls **3D-GIS** an der THWS (Hochschule für angewandte Wissenschaften Würzburg-Schweinfurt).
 
-👉 **Live-Webseite:** [https://RLKO31.github.io/veste-coburg-3d/](https://RLKO31.github.io/veste-coburg-3d/)
+**Live-Webseite:** [https://RLKO31.github.io/veste-coburg-3d/](https://RLKO31.github.io/veste-coburg-3d/)
 
 ---
 
-## 🏰 Über das Modell
+## Über das Modell
 
 Das 3D-Modell verbindet hochauflösende Geobasisdaten des Freistaates Bayern zu einem druckfertigen und web-visualisierbaren 3D-Volumenmodell:
 - **Terrain (DGM / Relief):** Digitales Geländemodell (DGM1) der Bayerischen Vermessungsverwaltung (LDBV)
@@ -22,23 +22,23 @@ Das 3D-Modell verbindet hochauflösende Geobasisdaten des Freistaates Bayern zu 
 
 ---
 
-## ⚙️ Funktionen der Web-Applikation
+## Funktionen der Web-Applikation
 
-- 🕹️ **3D-Orbit-Steuerung:** Frei rotieren (linker Mausklick / Touch), verschieben (rechter Mausklick / 2 Finger) und stufenlos zoomen (Mausrad / Pinch-to-Zoom)
-- 🔄 **Modellauswahl:** Wechsel zwischen dem vollvolumigen **3D-Druckmodell mit Sockel** (`Druckmodell.stl`) und dem reinen **Ensemble-Geländeausschnitt** (`GesamtVeste.stl`)
-- 🎨 **Visualisierungs-Modi:**
+- **3D-Orbit-Steuerung:** Frei rotieren (linker Mausklick / Touch), verschieben (rechter Mausklick / 2 Finger) und stufenlos zoomen (Mausrad / Pinch-to-Zoom)
+- **Modellauswahl:** Wechsel zwischen dem vollvolumigen **3D-Druckmodell mit Sockel** (`Druckmodell.stl`) und dem reinen **Ensemble-Geländeausschnitt** (`GesamtVeste.stl`)
+- **Visualisierungs-Modi:**
   - *Sandstein / Natur:* Realistische Farbgebung der fränkischen Festungsanlage
   - *Höhenschichten (Topografie):* Pseudofarben nach Höhenmeter (345 m bis 485 m)
   - *Clay / Skulptur:* Monochromes Studio-Shading für maximale Detailwahrnehmung
   - *Wireframe (Drahtgitter):* Visualisierung der triangulierten TIN-Topologie (37.700 Dreiecke)
-- 🧭 **Standard-Kameraansichten:** Isometrie, Vogelperspektive (Draufsicht), Süd-Panorama und Detail-Zoom
-- 🎬 **Auto-Rotation:** Sanfte 360°-Präsentationsrotation
-- 💾 **Direkter Download:** Bereitstellung der STL- und 3MF-Druckdateien direkt über das Dashboard
-- ⚖️ **Rechtssicherheit & Open Data:** Integriertes Impressum (§ 5 DDG) und vollständige Quellenangaben nach CC BY 4.0 / Datenlizenz Deutschland
+- **Standard-Kameraansichten:** Isometrie, Vogelperspektive (Draufsicht), Süd-Panorama und Detail-Zoom
+- **Auto-Rotation:** Sanfte 360°-Präsentationsrotation
+- **Direkter Download:** Bereitstellung der STL- und 3MF-Druckdateien direkt über das Dashboard
+- **Rechtssicherheit & Open Data:** Integriertes Impressum (§ 5 DDG) und vollständige Quellenangaben nach CC BY 4.0 / Datenlizenz Deutschland
 
 ---
 
-## 📊 Datenquellen & Lizenzen
+## Datenquellen & Lizenzen
 
 - **Geodatenbasis:** Bayerische Vermessungsverwaltung ([GeodatenOnline / Open Data Bayern](https://geodatenonline.bayern.de/))
   - Digitales Geländemodell (DGM) & 3D-Gebäudemodelle (LoD2 CityGML)
