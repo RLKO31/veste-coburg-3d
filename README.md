@@ -1,8 +1,13 @@
 # Veste Coburg – Interaktives 3D-Gelände- & Druckmodell
 
+[![GitHub Pages](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-brightgreen?logo=github)](https://RLKO31.github.io/veste-coburg-3d/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Three.js](https://img.shields.io/badge/3D-Three.js-000000?logo=three.js)](https://threejs.org/)
+[![Open Data Bayern](https://img.shields.io/badge/Data-Open%20Data%20Bayern%20(dl--de%2Fby--2--0)-blue)](https://geodatenonline.bayern.de/)
+
 Ein leichtes, responsives Web-Dashboard zur interaktiven 3D-Erkundung der **Veste Coburg** („Fränkische Krone“). Entwickelt im Rahmen des Moduls **3D-GIS** an der THWS (Hochschule für angewandte Wissenschaften Würzburg-Schweinfurt).
 
-🌐 **Live-Webseite:** [https://RLKO31.github.io/veste-coburg-3d/](https://RLKO31.github.io/veste-coburg-3d/)
+👉 **Live-Webseite:** [https://RLKO31.github.io/veste-coburg-3d/](https://RLKO31.github.io/veste-coburg-3d/)
 
 ---
 
